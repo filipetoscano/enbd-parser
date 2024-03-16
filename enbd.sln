@@ -1,0 +1,55 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "global", "global", "{DA723758-803A-4642-B5D7-9D87E16FE81A}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		Directory.Build.props = Directory.Build.props
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{926E6B15-2004-46CC-B704-7FDB0E755705}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{5D754FB9-1914-41EC-B468-6946D96C3D81}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tools", "tools", "{CAC9B80A-B362-4135-AC30-8013D0DB6124}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "cicd", "cicd", "{C05A73FD-2F58-4F30-916F-7D21004D510D}"
+	ProjectSection(SolutionItems) = preProject
+		cicd\ci.sh = cicd\ci.sh
+		cicd\release.sh = cicd\release.sh
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Enbd.StatementParser", "src\Enbd.StatementParser\Enbd.StatementParser.csproj", "{885DD25C-761D-4117-8950-7AA2F644F5C1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Enbd", "tools\Enbd\Enbd.csproj", "{BA034692-6DDF-420D-BF9A-CE841165B649}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{885DD25C-761D-4117-8950-7AA2F644F5C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{885DD25C-761D-4117-8950-7AA2F644F5C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{885DD25C-761D-4117-8950-7AA2F644F5C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{885DD25C-761D-4117-8950-7AA2F644F5C1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA034692-6DDF-420D-BF9A-CE841165B649}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA034692-6DDF-420D-BF9A-CE841165B649}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA034692-6DDF-420D-BF9A-CE841165B649}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA034692-6DDF-420D-BF9A-CE841165B649}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{885DD25C-761D-4117-8950-7AA2F644F5C1} = {926E6B15-2004-46CC-B704-7FDB0E755705}
+		{BA034692-6DDF-420D-BF9A-CE841165B649} = {CAC9B80A-B362-4135-AC30-8013D0DB6124}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {15EEB6F3-A067-45F5-987C-824BD8FDEAF9}
+	EndGlobalSection
+EndGlobal
