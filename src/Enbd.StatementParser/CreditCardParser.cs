@@ -78,17 +78,6 @@ public class CreditCardParser
 
 
         /*
-         * 
-         */
-        //foreach ( var x in fc.Pages )
-        //{
-        //    Console.WriteLine( "===============" );
-        //    Console.WriteLine( x.Number.ToString() );
-        //    Console.WriteLine( x.Text );
-        //}
-
-
-        /*
          * Round #2
          */
         var reg1 = new Regex( @"^(?<txdate>\d+/\d+/\d+) (?<post>\d+/\d+/\d+) (?<desc>.*?) (?<amount>(\d+,)*\d+\.\d+)(?<dir>CR)?(?<currency> [A-Z]*)?$" );
