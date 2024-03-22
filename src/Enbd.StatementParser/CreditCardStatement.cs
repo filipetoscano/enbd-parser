@@ -45,5 +45,5 @@ public class CreditCardTransaction
 
     /// <summary />
     [JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
-    public TransactionInfo? TransactionInfo { get; set; }
+    public CreditCardOperation? Operation { get; set; }
 }

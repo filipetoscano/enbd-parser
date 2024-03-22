@@ -4,14 +4,8 @@ namespace Enbd.StatementParser;
 
 /// <summary />
 [JsonConverter( typeof( JsonStringEnumConverter ) )]
-public enum TransactionInfo
+public enum CreditCardOperation
 {
     /// <summary />
-    CreditCardRepayment = 1,
-
-    /// <summary />
-    ToTermDeposit,
-
-    /// <summary />
-    FromTermDeposit,
+    CreditCardPayment = 1,
 }

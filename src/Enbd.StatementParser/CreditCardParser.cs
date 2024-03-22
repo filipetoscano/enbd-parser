@@ -118,7 +118,7 @@ public class CreditCardParser
                     tx.TransactionType = TransactionType.Credit;
 
                 if ( tx.Description == "TRANSFER PAYMENT RECEIVED THANK YOU" )
-                    tx.TransactionInfo = TransactionInfo.CreditCardRepayment;
+                    tx.Operation = CreditCardOperation.CreditCardPayment;
 
                 stmt.Transactions.Add( tx );
 

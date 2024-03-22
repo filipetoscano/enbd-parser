@@ -95,6 +95,13 @@ public class ParseCommand
             if ( stmt == Statement.CurrentAccount )
             {
                 var sca = cap.Parse( fc );
+
+                var min = sca.Transactions.Max( x => x.TransactionDate );
+                var fname = sca.AccountNumber + "-" + min.Year + "-" + min.Month.ToString( "00" ) + ".json";
+                var oname = Path.Combine( this.OutputPath, fname );
+
+                var json = JsonSerializer.Serialize( sca, jso );
+                File.WriteAllText( oname, json );
             }
         }
 
