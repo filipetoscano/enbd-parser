@@ -13,6 +13,9 @@ public enum CurrentAccountOperation
     CardPurchase,
 
     /// <summary />
+    CardRefund,
+
+    /// <summary />
     ToTermDeposit,
 
     /// <summary />
@@ -32,4 +35,13 @@ public enum CurrentAccountOperation
 
     /// <summary />
     Cheque,
+
+    /// <summary />
+    BankTransfer,
+
+    /// <summary />
+    DomesticTransfer,
+
+    /// <summary />
+    ForeignTransfer,
 }

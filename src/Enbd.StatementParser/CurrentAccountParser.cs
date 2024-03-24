@@ -252,6 +252,33 @@ public class CurrentAccountParser
                 }
             }
 
+            if ( itx.TryLine( 0 ) == "POS-REFUNDS/RET" )
+            {
+                itx.Operation = CurrentAccountOperation.CardRefund;
+                itx.RelatedTo = Cardify( itx.LineAt( 1 ).Substring( "CARD NO. ".Length ) );
+                itx.Description = itx.LineAt( 2 );
+            }
+
+
+            /*
+             * Transfers
+             */
+            if ( itx.TryLine( 0 ) == "BANKNET TRANSFER" )
+            {
+                itx.Operation = CurrentAccountOperation.BankTransfer;
+                itx.Description = itx.LineAt( 1 );
+
+                continue;
+            }
+
+            if ( itx.TryLine( 0 ) == "TRANSFER" )
+            {
+                itx.Operation = CurrentAccountOperation.DomesticTransfer;
+                itx.Description = string.Join( " ", itx.Lines![ 1.. ] );
+
+                continue;
+            }
+
 
             /*
              * Salary In
@@ -292,8 +319,19 @@ public class CurrentAccountParser
             if ( itx.TryLine( 0 ) == "DR ATM TRANSACTION" )
             {
                 itx.Operation = CurrentAccountOperation.CashWithdrawal;
-                itx.RelatedTo = itx.LineAt( 1 ).Substring( "CARD NO. ".Length );
+                itx.RelatedTo = Cardify( itx.LineAt( 1 ).Substring( "CARD NO. ".Length ) );
                 itx.Description = itx.LineAt( 3 );
+
+                continue;
+            }
+
+            if ( itx.TryLine( 0 ) == "UAE SWITCH WDL" )
+            {
+                // Cash Withdrawl in other Bank ATM
+
+                itx.Operation = CurrentAccountOperation.CashWithdrawal;
+                itx.RelatedTo = Cardify( itx.LineAt( 1 ).Substring( "CARD NO. ".Length ) );
+                itx.Description = string.Join( " ", itx.Lines![ 2.. ] );
 
                 continue;
             }
@@ -329,6 +367,12 @@ public class CurrentAccountParser
 
                 continue;
             }
+
+
+            /*
+             * 
+             */
+            itx.Description = itx.LineAt( 0 );
         }
 
         return stmt;
