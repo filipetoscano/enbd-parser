@@ -5,6 +5,7 @@ namespace Enbd;
 /// <summary />
 [Command( "enbd", Description = "" )]
 [Subcommand( typeof( ParseCommand ) )]
+[Subcommand( typeof( ImportCommand ) )]
 internal class Program
 {
     /// <summary />

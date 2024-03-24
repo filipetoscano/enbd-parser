@@ -3,7 +3,7 @@
 namespace Enbd.StatementParser;
 
 /// <summary />
-public class CurrentAccountStatement
+public class CurrentAccountStatement : EnbdStatement
 {
     /// <summary />
     public string AccountNumber { get; set; } = "";
@@ -26,10 +26,20 @@ public class CurrentAccountTransaction
     public DateOnly TransactionDate { get; set; }
 
     /// <summary />
-    public string Description { get; set; } = "";
+    public TransactionType TransactionType { get; set; }
+
+    /// <summary />
+    [JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
+    public CurrentAccountOperation? Operation { get; set; }
+
+    /// <summary />
+    public string Description { get; set; } = default!;
 
     /// <summary />
     public decimal Amount { get; set; }
+
+    /// <summary />
+    public decimal Balance { get; set; }
 
     /// <summary />
     [JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
@@ -37,17 +47,7 @@ public class CurrentAccountTransaction
 
     /// <summary />
     [JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
-    public decimal? ForeignAmount { get; internal set; }
-
-    /// <summary />
-    public decimal Balance { get; set; }
-
-    /// <summary />
-    public TransactionType TransactionType { get; set; }
-
-    /// <summary />
-    [JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
-    public CurrentAccountOperation? Operation { get; set; }
+    public decimal? ForeignAmount { get; set; }
 
     /// <summary />
     [JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]

@@ -69,10 +69,13 @@ public class CurrentAccountParser
          */
         var regex = new
         {
-            BroughtForward = new Regex( @"^\d{2}[A-Z]{3}\d{2} BROUGHT FORWARD (?<balance>.*?)Cr$" ),
+            BroughtForward = new Regex( @"^\d{2}[A-Z]{3}\d{2} BROUGHT FORWARD (?<balance>.*?)(Cr)?$" ),
             CarriedForward = new Regex( @"^CARRIED FORWARD (?<balance>.*?)Cr$" ),
             TxStart = new Regex( @"^(?<date>\d{2}[A-Z]{3}\d{2}) (?<line>.*?)$" ),
             TxEnd = new Regex( @"(?<line>.*?) (?<amount>[0-9,]+\.[0-9]{2}) (?<balance>[0-9,]+\.[0-9]{2})Cr$" ),
+
+            Country = new Regex( @"(.*?):[A-Z]{2}" ),
+            Amount = new Regex( @"(?<amount>[0-9,]+\.[0-9]{2}),(?<currency>[A-Z]{3})" ),
         };
 
 
@@ -198,14 +201,16 @@ public class CurrentAccountParser
         /*
          * Credit/Debit
          */
-        var ftx = stmt.Transactions[ 0 ];
+        var ftx = (CurrentAccountTransaction) stmt.Transactions[ 0 ];
         ftx.TransactionType = ( ftx.Balance > stmt.BalanceOpening )
             ? TransactionType.Credit : TransactionType.Debit;
 
         for ( var i = 1; i < stmt.Transactions.Count; i++ )
         {
-            ftx = stmt.Transactions[ i ];
-            ftx.TransactionType = ( ftx.Balance > stmt.Transactions[ i - 1 ].Balance )
+            ftx = (CurrentAccountTransaction) stmt.Transactions[ i ];
+            var prev = (CurrentAccountTransaction) stmt.Transactions[ i - 1 ];
+
+            ftx.TransactionType = ( ftx.Balance > prev.Balance )
                 ? TransactionType.Credit : TransactionType.Debit;
         }
 
@@ -213,14 +218,16 @@ public class CurrentAccountParser
         /*
          * 
          */
-        foreach ( var itx in stmt.Transactions )
+        foreach ( CurrentAccountTransaction itx in stmt.Transactions )
         {
+            /*
+             * 
+             */
             if ( itx.TryLine( 0 ) == "CREDIT CARD PAYMENT" )
             {
-                itx.Operation = CurrentAccountOperation.CreditCardPayment;
-                itx.RelatedTo = itx.Lines![ 1 ].Substring( "CC NO.-".Length );
+                itx.Operation = CurrentAccountOperation.CreditCardRepayment;
+                itx.RelatedTo = itx.LineAt( 1 ).Substring( "CC NO.-".Length );
                 itx.Description = "Credit Card Payment";
-                itx.Lines = null;
 
                 continue;
             }
@@ -228,45 +235,65 @@ public class CurrentAccountParser
             if ( itx.TryLine( 0 ) == "POS-PURCHASE" )
             {
                 itx.Operation = CurrentAccountOperation.CardPurchase;
-                itx.RelatedTo = itx.Lines![ 1 ].Substring( "CARD NO. ".Length );
-                itx.Description = itx.Lines![ 2 ];
+                itx.RelatedTo = Cardify( itx.LineAt( 1 ).Substring( "CARD NO. ".Length ) );
+                itx.Description = itx.LineAt( 2 );
 
-                itx.Lines.RemoveAt( 0 );
-                itx.Lines.RemoveAt( 0 );
-                itx.Lines.RemoveAt( 0 );
+                var d = regex.Country.Match( itx.LineAt( 3 ) );
+
+                if ( d.Success == true )
+                    itx.Description += " " + d.Value;
+
+                var am = regex.Amount.Match( itx.LineAt( 3 ) );
+
+                if ( am.Success == true && am.Groups[ "currency" ].Value != "AED" )
+                {
+                    itx.ForeignAmount = decimal.Parse( am.Groups[ "amount" ].Value );
+                    itx.ForeignCurrency = am.Groups[ "currency" ].Value;
+                }
             }
 
+
+            /*
+             * Salary In
+             */
             if ( itx.TryLine( 0 ) == "SALARY CREDIT" )
             {
                 itx.Operation = CurrentAccountOperation.Salary;
-                itx.Description = itx.Lines![ 1 ] + " " + itx.Lines![ 2 ];
-                itx.Lines = null;
-
-                continue;
-            }
-
-            if ( itx.TryLine( 0 ) == "INWARD CLEARING  CHQ. NO:" )
-            {
-                itx.Operation = CurrentAccountOperation.Cheque;
-                itx.RelatedTo = itx.Lines![ 2 ].Substring( "CHQ. NO: ".Length );
-                itx.Description = itx.Lines![ 2 ];
-                itx.Lines = null;
+                itx.Description = itx.LineAt( 1 ) + " " + itx.LineAt( 2 );
 
                 continue;
             }
 
 
             /*
-             * 
+             * Cheque Out
              */
+            if ( itx.TryLine( 0 ) == "INWARD CLEARING  CHQ. NO:" )
+            {
+                itx.Operation = CurrentAccountOperation.Cheque;
+                itx.RelatedTo = itx.Lines![ 2 ].Substring( "CHQ. NO: ".Length );
+                itx.Description = itx.Lines![ 2 ];
+
+                continue;
+            }
+
+
+            /*
+             * Cash
+             */
+            if ( itx.TryLine( 0 ) == "SDM DEPOSIT CR" )
+            {
+                itx.Operation = CurrentAccountOperation.CashDeposit;
+                itx.Description = itx.LineAt( 2 ) + " " + itx.LineAt( 3 );
+
+                continue;
+            }
+
             if ( itx.TryLine( 0 ) == "DR ATM TRANSACTION" )
             {
                 itx.Operation = CurrentAccountOperation.CashWithdrawal;
-                itx.RelatedTo = itx.Lines![ 1 ].Substring( "CARD NO. ".Length );
-                itx.Description = itx.Lines![ 3 ];
-
-                itx.Lines.RemoveAt( 0 );
-                itx.Lines.RemoveAt( 0 );
+                itx.RelatedTo = itx.LineAt( 1 ).Substring( "CARD NO. ".Length );
+                itx.Description = itx.LineAt( 3 );
 
                 continue;
             }
@@ -290,7 +317,6 @@ public class CurrentAccountParser
                 itx.Operation = CurrentAccountOperation.FromTermDeposit;
                 itx.RelatedTo = itx.Lines![ 0 ].Substring( 0, 19 );
                 itx.Description = "Term Deposit Maturity";
-                itx.Lines = null;
 
                 continue;
             }
@@ -300,13 +326,27 @@ public class CurrentAccountParser
                 itx.Operation = CurrentAccountOperation.InterestEarned;
                 itx.RelatedTo = itx.LineAt( 0 ).Substring( 0, 19 );
                 itx.Description = itx.LineAt( 2 );
-                itx.Lines = null;
 
                 continue;
             }
         }
 
         return stmt;
+    }
+
+
+    /// <summary />
+    private string Cardify( string v )
+    {
+        if ( v.Length == 16 )
+        {
+            v = v.Substring( 0, 4 )
+                + "-" + v.Substring( 4, 4 )
+                + "-" + v.Substring( 8, 4 )
+                + "-" + v.Substring( 12, 4 );
+        }
+
+        return v;
     }
 
 

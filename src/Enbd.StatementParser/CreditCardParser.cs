@@ -118,7 +118,14 @@ public class CreditCardParser
                     tx.TransactionType = TransactionType.Credit;
 
                 if ( tx.Description == "TRANSFER PAYMENT RECEIVED THANK YOU" )
-                    tx.Operation = CreditCardOperation.CreditCardPayment;
+                    tx.Operation = CreditCardOperation.CreditCardRepayment;
+                else
+                {
+                    if ( tx.TransactionType == TransactionType.Credit )
+                        tx.Operation = CreditCardOperation.Reversal;
+                    else
+                        tx.Operation = CreditCardOperation.Payment;
+                }
 
                 stmt.Transactions.Add( tx );
 

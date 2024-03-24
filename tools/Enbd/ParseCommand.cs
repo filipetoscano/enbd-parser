@@ -74,13 +74,16 @@ public class ParseCommand
             Console.WriteLine( fn );
 
             var fc = te.Extract( pdf, this.Password );
-            var stmt = cc.Classify( fc );
+            var type = cc.Classify( fc );
 
-            if ( stmt == null )
+            if ( type == null )
                 continue;
 
 
-            if ( stmt == Statement.CreditCard )
+            /*
+             * 
+             */
+            if ( type == Statement.CreditCard )
             {
                 var scc = ccp.Parse( fc );
 
@@ -88,11 +91,11 @@ public class ParseCommand
                 var fname = scc.CardNumber + "-" + min.Year + "-" + min.Month.ToString( "00" ) + ".json";
                 var oname = Path.Combine( this.OutputPath, fname );
 
-                var json = JsonSerializer.Serialize( scc, jso );
+                var json = JsonSerializer.Serialize( (EnbdStatement) scc, jso );
                 File.WriteAllText( oname, json );
             }
 
-            if ( stmt == Statement.CurrentAccount )
+            if ( type == Statement.CurrentAccount )
             {
                 var sca = cap.Parse( fc );
 
@@ -100,7 +103,7 @@ public class ParseCommand
                 var fname = sca.AccountNumber + "-" + min.Year + "-" + min.Month.ToString( "00" ) + ".json";
                 var oname = Path.Combine( this.OutputPath, fname );
 
-                var json = JsonSerializer.Serialize( sca, jso );
+                var json = JsonSerializer.Serialize( (EnbdStatement) sca, jso );
                 File.WriteAllText( oname, json );
             }
         }
