@@ -16,7 +16,9 @@ obj/
 # Specific
 /data/
 /tools/Enbd/run.cmd
+/tools/Enbd/Properties/launchSettings.json
 /tools/Enbd/data/
 /tools/Enbd/*.txt
+/tools/Enbd/*.db
 
 # eof
