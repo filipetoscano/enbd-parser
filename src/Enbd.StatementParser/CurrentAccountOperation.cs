@@ -7,7 +7,7 @@ namespace Enbd.StatementParser;
 public enum CurrentAccountOperation
 {
     /// <summary />
-    CreditCardRepayment = 1,
+    CardRepayment = 1,
 
     /// <summary />
     CardPurchase,

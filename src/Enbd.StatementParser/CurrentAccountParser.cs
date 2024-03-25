@@ -225,7 +225,7 @@ public class CurrentAccountParser
              */
             if ( itx.TryLine( 0 ) == "CREDIT CARD PAYMENT" )
             {
-                itx.Operation = CurrentAccountOperation.CreditCardRepayment;
+                itx.Operation = CurrentAccountOperation.CardRepayment;
                 itx.RelatedTo = itx.LineAt( 1 ).Substring( "CC NO.-".Length );
                 itx.Description = "Credit Card Payment";
 
@@ -250,6 +250,8 @@ public class CurrentAccountParser
                     itx.ForeignAmount = decimal.Parse( am.Groups[ "amount" ].Value );
                     itx.ForeignCurrency = am.Groups[ "currency" ].Value;
                 }
+
+                continue;
             }
 
             if ( itx.TryLine( 0 ) == "POS-REFUNDS/RET" )
@@ -257,6 +259,8 @@ public class CurrentAccountParser
                 itx.Operation = CurrentAccountOperation.CardRefund;
                 itx.RelatedTo = Cardify( itx.LineAt( 1 ).Substring( "CARD NO. ".Length ) );
                 itx.Description = itx.LineAt( 2 );
+
+                continue;
             }
 
 
