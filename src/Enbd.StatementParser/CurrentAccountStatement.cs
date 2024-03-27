@@ -55,6 +55,10 @@ public class CurrentAccountTransaction
 
     /// <summary />
     [JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
+    public string? Country { get; set; }
+
+    /// <summary />
+    [JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
     public List<string>? Lines { get; set; } = new List<string>();
 
 

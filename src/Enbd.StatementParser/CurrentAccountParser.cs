@@ -74,7 +74,7 @@ public class CurrentAccountParser
             TxStart = new Regex( @"^(?<date>\d{2}[A-Z]{3}\d{2}) (?<line>.*?)$" ),
             TxEnd = new Regex( @"(?<line>.*?) (?<amount>[0-9,]+\.[0-9]{2}) (?<balance>[0-9,]+\.[0-9]{2})Cr$" ),
 
-            Country = new Regex( @"(.*?):[A-Z]{2}" ),
+            Country = new Regex( @".*?:(?<cca2>[A-Z]{2})" ),
             Amount = new Regex( @"(?<amount>[0-9,]+\.[0-9]{2}),(?<currency>[A-Z]{3})" ),
         };
 
@@ -243,6 +243,14 @@ public class CurrentAccountParser
                 if ( d.Success == true )
                     itx.Description += " " + d.Value;
 
+                var d2 = regex.Country.Match( itx.Description );
+
+                if ( d2.Success == true )
+                {
+                    itx.Country = d2.Groups[ "cca2" ].Value;
+                    itx.Description = itx.Description.Substring( 0, itx.Description.Length - 3 );
+                }
+
                 var am = regex.Amount.Match( itx.LineAt( 3 ) );
 
                 if ( am.Success == true && am.Groups[ "currency" ].Value != "AED" )
@@ -270,7 +278,11 @@ public class CurrentAccountParser
             if ( itx.TryLine( 0 ) == "BANKNET TRANSFER" )
             {
                 itx.Operation = CurrentAccountOperation.BankTransfer;
-                itx.Description = itx.LineAt( 1 );
+
+                if ( itx.LineAt( 1 ) == "MOBILE BANKING TRANSFER TO" )
+                    itx.Description = itx.LineAt( 2 ) + " " + itx.LineAt( 3 );
+                else
+                    itx.Description = itx.LineAt( 1 );
 
                 continue;
             }
@@ -346,7 +358,7 @@ public class CurrentAccountParser
              */
             if ( itx.TryLine( 0 ) == "DR. TRAN FOR FUNDING A/C" )
             {
-                itx.Operation = CurrentAccountOperation.ToTermDeposit;
+                itx.Operation = CurrentAccountOperation.TermDepositCreate;
                 itx.RelatedTo = itx.LineAt( 1 );
                 itx.Description = "Term Deposit Constitution";
                 itx.Lines = null;
@@ -356,7 +368,7 @@ public class CurrentAccountParser
 
             if ( itx.TryLine( 1 ) == "PROCEEDS  CREDIT TO" )
             {
-                itx.Operation = CurrentAccountOperation.FromTermDeposit;
+                itx.Operation = CurrentAccountOperation.TermDepositMaturity;
                 itx.RelatedTo = itx.Lines![ 0 ].Substring( 0, 19 );
                 itx.Description = "Term Deposit Maturity";
 

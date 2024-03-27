@@ -43,35 +43,57 @@ public class ImportCommand
         /*
          * 
          */
+        var stmt = new List<EnbdStatement>();
+
+        foreach ( var f in files )
+        {
+            Console.WriteLine( f );
+
+            var json = File.ReadAllText( f );
+            var obj = JsonSerializer.Deserialize<EnbdStatement>( json );
+
+            if ( obj == null )
+                throw new InvalidOperationException( $"Failed to deserialize EnbdStatement from '{f}'" );
+
+            stmt.Add( obj );
+        }
+
+
+        /*
+         * 
+         */
         var sql = new
         {
-            Schema = @"create table if not exists TxRow
+            Schema = @"create table if not exists Tx
 (
+  Id number,
   ObjNumber text,
   ObjType text,
-  TransactionDate text,
-  TransactionType text,
+  TxDate text,
+  TxType text,
   Operation text,
   Amount number,
   Description text,
   ForeignAmount number,
   ForeignCurrency number,
+  RelatedTo text,
+  Country text,
   Balance number
 );",
 
-            DeleteAll = @"delete from TxRow",
+            DeleteAll = @"delete from Tx",
 
-            InsertRow = @"insert into TxRow
+            InsertRow = @"insert into Tx
 (
-  ObjNumber, ObjType, TransactionDate, TransactionType,
+  Id, ObjNumber, ObjType, TxDate, TxType,
   Operation, Amount, Description, ForeignAmount,
-  ForeignCurrency, Balance
+  ForeignCurrency, RelatedTo, Country, Balance
 )
 values
 (
-  @ObjNumber, @ObjType, @TransactionDate, @TransactionType,
+  @Id, @ObjNumber, @ObjType, @TxDate, @TxType,
   @Operation, @Amount, @Description, @ForeignAmount,
-  @ForeignCurrency, @Balance
+  @ForeignCurrency, @RelatedTo, @Country, @Balance
 );",
         };
 
@@ -91,13 +113,10 @@ values
         /*
          * 
          */
-        foreach ( var f in files )
+        int id = 1;
+
+        foreach ( var obj in stmt )
         {
-            Console.WriteLine( f );
-
-            var json = File.ReadAllText( f );
-            var obj = JsonSerializer.Deserialize<EnbdStatement>( json );
-
             if ( obj is CreditCardStatement cc )
             {
                 foreach ( var row in cc.Transactions )
@@ -106,15 +125,18 @@ values
 
                     conn.Execute( sql.InsertRow, new
                     {
+                        Id = id++,
                         ObjNumber = cc.CardNumber,
                         ObjType = "CC",
-                        TransactionDate = row.TransactionDate.ToString( "yyyy-MM-dd" ),
-                        TransactionType = row.TransactionType.ToString(),
+                        TxDate = row.TransactionDate.ToString( "yyyy-MM-dd" ),
+                        TxType = row.TransactionType.ToString(),
                         Operation = row.Operation?.ToString(),
                         row.Amount,
                         row.Description,
                         row.ForeignAmount,
                         row.ForeignCurrency,
+                        RelatedTo = default( string? ),
+                        row.Country,
                         Balance = default( decimal? ),
                     }, transaction: tx );
                 }
@@ -130,15 +152,18 @@ values
 
                     conn.Execute( sql.InsertRow, new
                     {
+                        Id = id++,
                         ObjNumber = ca.AccountNumber,
                         ObjType = "CA",
-                        TransactionDate = row.TransactionDate.ToString( "yyyy-MM-dd" ),
-                        TransactionType = row.TransactionType.ToString(),
+                        TxDate = row.TransactionDate.ToString( "yyyy-MM-dd" ),
+                        TxType = row.TransactionType.ToString(),
                         Operation = row.Operation?.ToString(),
                         row.Amount,
                         row.Description,
                         row.ForeignAmount,
                         row.ForeignCurrency,
+                        row.RelatedTo,
+                        row.Country,
                         row.Balance,
                     }, transaction: tx );
                 }

@@ -33,6 +33,10 @@ public class CreditCardTransaction
     public string Description { get; set; } = default!;
 
     /// <summary />
+    [JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
+    public string? Country { get; set; }
+
+    /// <summary />
     public decimal Amount { get; set; }
 
     /// <summary />

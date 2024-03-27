@@ -83,6 +83,7 @@ public class CreditCardParser
         var reg1 = new Regex( @"^(?<txdate>\d+/\d+/\d+) (?<post>\d+/\d+/\d+) (?<desc>.*?) (?<amount>(\d+,)*\d+\.\d+)(?<dir>CR)?(?<currency> [A-Z]*)?$" );
         var reg2 = new Regex( @"^(\*)?\(1 AED = [A-Z]{3} (?<xr>\d+.\d+)\)$" );
         var reg3 = new Regex( @"^(?<amount>(\d+,)*\d+\.\d+)(?<dir>CR)?$" );
+        var reg4 = new Regex( @" (?<cca3>[A-Z]{3})$" );
 
         var jso = new JsonSerializerOptions() { WriteIndented = true };
 
@@ -171,9 +172,51 @@ public class CreditCardParser
                 {
                     tx.Operation = CreditCardOperation.CardPurchase;
                 }
+
+
+                /*
+                 * 
+                 */
+                if ( tx.Operation == CreditCardOperation.CardPurchase )
+                {
+                    var m = reg4.Match( tx.Description );
+
+                    if ( m.Success == true )
+                    {
+                        var cc = CountryMap( m.Groups[ "cca3" ].Value );
+
+                        if ( cc != null )
+                        {
+                            tx.Country = cc;
+                            tx.Description = tx.Description.Substring( 0, tx.Description.Length - 4 );
+                        }
+                    }
+                }
             }
         }
 
         return stmt;
+    }
+
+
+    /// <summary />
+    private string? CountryMap( string cc )
+    {
+        if ( cc == "ARE" )
+            return "AE";
+
+        if ( cc == "GBR" )
+            return "GB";
+
+        if ( cc == "LUX" )
+            return "LU";
+
+        if ( cc == "NLD" )
+            return "NL";
+
+        if ( cc == "PRT" )
+            return "PT";
+
+        return null;
     }
 }

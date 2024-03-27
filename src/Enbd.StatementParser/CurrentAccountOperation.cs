@@ -6,42 +6,66 @@ namespace Enbd.StatementParser;
 [JsonConverter( typeof( JsonStringEnumConverter ) )]
 public enum CurrentAccountOperation
 {
-    /// <summary />
+    /// <summary>
+    /// Payment of the due amount on a credit card.
+    /// </summary>
     CardRepayment = 1,
 
-    /// <summary />
+    /// <summary>
+    /// Purchase using a debit card.
+    /// </summary>
     CardPurchase,
 
-    /// <summary />
+    /// <summary>
+    /// Refund of a prior purchase using a debit card.
+    /// </summary>
     CardRefund,
 
-    /// <summary />
-    ToTermDeposit,
+    /// <summary>
+    /// Constitution of a term deposit.
+    /// </summary>
+    TermDepositCreate,
 
-    /// <summary />
-    FromTermDeposit,
+    /// <summary>
+    /// Maturity or (partial) redemption from term deposit.
+    /// </summary>
+    TermDepositMaturity,
 
     /// <summary />
     InterestEarned,
 
-    /// <summary />
+    /// <summary>
+    /// Transfer of (monthly) salary.
+    /// </summary>
     Salary,
 
-    /// <summary />
+    /// <summary>
+    /// Cash withdrawal from an ATM.
+    /// </summary>
     CashWithdrawal,
 
-    /// <summary />
+    /// <summary>
+    /// Cash deposit into an ATM.
+    /// </summary>
     CashDeposit,
 
-    /// <summary />
+    /// <summary>
+    /// Payment through a cheque.
+    /// </summary>
     Cheque,
 
-    /// <summary />
+    /// <summary>
+    /// Bank transfer, to another account within same Bank.
+    /// </summary>
     BankTransfer,
 
-    /// <summary />
+    /// <summary>
+    /// Domestic transfer, to an account at another Bank.
+    /// </summary>
     DomesticTransfer,
 
-    /// <summary />
+    /// <summary>
+    /// Foreign transfer, to an account in another country.
+    /// </summary>
     ForeignTransfer,
 }

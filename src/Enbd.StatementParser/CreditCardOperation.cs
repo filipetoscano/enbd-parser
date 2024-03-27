@@ -6,12 +6,18 @@ namespace Enbd.StatementParser;
 [JsonConverter( typeof( JsonStringEnumConverter ) )]
 public enum CreditCardOperation
 {
-    /// <summary />
+    /// <summary>
+    /// Payment of the due amount on a credit card.
+    /// </summary>
     CardRepayment = 1,
 
-    /// <summary />
+    /// <summary>
+    /// Purchase using a credit card.
+    /// </summary>
     CardPurchase,
 
-    /// <summary />
+    /// <summary>
+    /// Refund of a prior purchase using a credit card.
+    /// </summary>
     CardRefund,
 }
